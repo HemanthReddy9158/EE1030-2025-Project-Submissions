@@ -3,8 +3,7 @@ from PIL import Image
 import ctypes
 import os
 import matplotlib.pyplot as plt
-
-# ===== Load C Shared Library =====
+Load C Shared Library
 LIB_NAME = "./svd_lib.so"   # or "tsvd.dll" on Windows
 lib = ctypes.CDLL(LIB_NAME)
 
@@ -65,7 +64,7 @@ def save_same_format(matrix, input_path, k):
 
 
 def main():
-    # === Input image (any format: jpg, png, bmp...) ===
+    #Input image (any format: jpg, png,..)
     input_path = "globe.jpg"  # Change filename here
     img = Image.open(input_path).convert("L")  # Grayscale
     A = np.array(img, dtype=np.float64)
@@ -90,7 +89,7 @@ def main():
         save_same_format(Ak, input_path, k)
         results.append((k, Ak, err))
 
-    # === Display all images ===
+    #Display all images
     ncols = len(results) + 1
     plt.figure(figsize=(3*ncols, 4))
     plt.subplot(1, ncols, 1)
@@ -105,7 +104,7 @@ def main():
         plt.axis('off')
 
     plt.tight_layout()
-    plt.savefig('my_plot2.png')
+    plt.savefig('my_plot.png')
     plt.close()
 
 

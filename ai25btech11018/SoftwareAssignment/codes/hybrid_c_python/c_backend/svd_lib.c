@@ -1,10 +1,3 @@
-// tsvd.c
-// Simple truncated SVD via eigen-decomposition of A^T A
-// Exposes: void truncated_svd(const double* A, int m, int n, int k, double* Ak_out, double* sigma_out)
-// A: m x n row-major input
-// Ak_out: preallocated m*n row-major output (reconstructed matrix)
-// sigma_out: preallocated array length k (filled with singular values)
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -18,7 +11,6 @@ static double dot_vec(const double* a, const double* b, int n) {
 
 static void matmul_AtA(const double* A, int m, int n, double* S) {
     // S = A^T * A  (n x n)
-    // initialize to zero
     int nn = n * n;
     for (int i = 0; i < nn; ++i) S[i] = 0.0;
 
@@ -47,10 +39,6 @@ static void mat_vec(const double* M, int rows, int cols, const double* x, double
 static void sym_mat_vec_minus_projections(const double* S, int n,
     const double* x, double* y,
     const double* prev_vs, const double* prev_lams, int found) {
-    // y = S*x  then subtract sum_{j=0..found-1} lam_j * (v_j^T x) * v_j
-    // prev_vs: found vectors each length n concatenated (found * n)
-    // prev_lams: found lambdas
-    // precompute S*x
     for (int i = 0; i < n; ++i) {
         double s = 0.0;
         const double* row = S + i * n;
@@ -82,12 +70,11 @@ void truncated_svd(const double* A, int m, int n, int k, double* Ak_out, double*
     double* y = (double*) malloc(sizeof(double) * n);
     double* tmp = (double*) malloc(sizeof(double) * n);
 
-    // deterministic initial vector seed
     for (int i = 0; i < n; ++i) b[i] = 1.0 / (n>0? (double)n : 1.0);
 
     // For each top eigenpair, do power iteration with orthogonal deflation (by subtracting found components)
     for (int comp = 0; comp < k; ++comp) {
-        // initialize b (perturb slightly)
+        // initialize b
         for (int i = 0; i < n; ++i) b[i] = (0.1 + (i+1.0)/ (n+1.0));
 
         double lambda = 0.0;
@@ -133,7 +120,7 @@ void truncated_svd(const double* A, int m, int n, int k, double* Ak_out, double*
         sigma_out[j] = sigma[j];
     }
 
-    // Compute left singular vectors U_j = (A * v_j) / sigma_j
+    // Compute left singular vectors U_j
     double* U = (double*) malloc(sizeof(double) * m * k);
     for (int j = 0; j < k; ++j) {
         const double* vj = V + j * n;
@@ -171,7 +158,6 @@ void truncated_svd(const double* A, int m, int n, int k, double* Ak_out, double*
         }
     }
 
-    // free temporaries
     free(S);
     free(V);
     free(Lambda);
