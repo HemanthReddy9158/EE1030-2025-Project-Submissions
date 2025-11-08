@@ -4,7 +4,7 @@ import ctypes
 import os
 import matplotlib.pyplot as plt
 Load C Shared Library
-LIB_NAME = "./svd_lib.so"   # or "tsvd.dll" on Windows
+LIB_NAME = "./svd_lib.so"
 lib = ctypes.CDLL(LIB_NAME)
 
 lib.truncated_svd.argtypes = [

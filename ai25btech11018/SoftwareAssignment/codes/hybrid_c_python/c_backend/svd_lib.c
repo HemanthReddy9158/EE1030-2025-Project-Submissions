@@ -89,7 +89,7 @@ void truncated_svd(const double* A, int m, int n, int k, double* Ak_out, double*
             if (normy == 0.0) break;
             for (int i = 0; i < n; ++i) tmp[i] = y[i] / normy;
 
-            // Rayleigh quotient estimate
+            // Eigenvalue estimation
             sym_mat_vec_minus_projections(S, n, tmp, y, V, Lambda, comp);
             double new_lambda = dot_vec(tmp, y, n);
 
@@ -108,7 +108,7 @@ void truncated_svd(const double* A, int m, int n, int k, double* Ak_out, double*
         // store eigenvector and eigenvalue
         for (int i = 0; i < n; ++i) V[comp * n + i] = b[i];
         Lambda[comp] = lambda;
-        // continue to next component (deflation is applied implicitly)
+        // continue to next component
     }
 
     // Now compute singular values sigma_j = sqrt(max(lambda,0))
@@ -135,13 +135,13 @@ void truncated_svd(const double* A, int m, int n, int k, double* Ak_out, double*
         if (sj > 1e-12) {
             for (int i = 0; i < m; ++i) U[j * m + i] = tmp[i] / sj;
         } else {
-            // sigma zero -> put zero column
+            
             for (int i = 0; i < m; ++i) U[j * m + i] = 0.0;
         }
     }
 
-    // Reconstruct Ak_out = sum_{j=0..k-1} sigma_j * u_j * v_j^T
-    // initialize Ak_out to zero
+    // Reconstruct Ak_out = sum{j=0..k-1} sigma_j * u_j * v_j^T
+    // initialize Ak_out to 0
     for (int i = 0; i < m * n; ++i) Ak_out[i] = 0.0;
 
     for (int j = 0; j < k; ++j) {
